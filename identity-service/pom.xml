@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.3.1</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.rin</groupId>
     <artifactId>identity</artifactId>
@@ -75,21 +75,12 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-test -->
-        <dependency>
+       <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <version>6.3.1</version>
             <scope>test</scope>
         </dependency>
-
-        <!--		<dependency>-->
-        <!--			<groupId>com.nimbusds</groupId>-->
-        <!--			<artifactId>nimbus-jose-jwt</artifactId>-->
-        <!--			<version>9.40</version>-->
-        <!--		</dependency>-->
-        <!--		Thư viện này đã bao gồm trong oauth2-->
-        <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -182,7 +173,6 @@
                         </indent>
                         <palantirJavaFormat/>
                         <importOrder>
-                            <!-- Specify either order or file, but not both -->
                             <order>java,jakarta,org,com,com.diffplug,</order>
                         </importOrder>
                     </java>
