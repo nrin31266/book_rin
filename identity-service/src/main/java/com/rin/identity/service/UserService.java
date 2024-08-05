@@ -3,6 +3,8 @@ package com.rin.identity.service;
 import java.util.HashSet;
 import java.util.List;
 
+import com.rin.identity.mapper.ProfileMapper;
+import com.rin.identity.repository.httpclient.ProfileClient;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,29 +41,30 @@ public class UserService {
 
     RoleRepository roleRepository;
 
+    ProfileClient profileClient;
+
+    ProfileMapper profileMapper;
+
     public UserResponse createUser(UserCreationRequest request) {
-
         log.info("Service: create user");
-
 //        if (userRepository.existsByUsername(request.getUsername())) {
 //            throw new AppException(ErrorCode.USER_EXISTED);
 //        }
         User user = userMapper.toUser(request);
-
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
         if (request.getRoles() != null) {
             List<com.rin.identity.entity.Role> roles = roleRepository.findAllById(request.getRoles());
-
             user.setRoles(new HashSet<>(roles));
         }
-
         try {
             user = userRepository.save(user);
         }catch (DataIntegrityViolationException exception){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
-
+        //Create profile
+        var profileRequest = profileMapper.toProfileCreationRequest(request);
+        profileRequest.setUserId(user.getId());
+        profileClient.create(profileRequest);
 
         return userMapper.toUserResponse(user);
     }
