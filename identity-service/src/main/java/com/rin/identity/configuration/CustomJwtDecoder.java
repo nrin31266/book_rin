@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.Objects;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -34,30 +35,19 @@ public class CustomJwtDecoder implements JwtDecoder {
 
 
 
-    // Ghi đè phương thức decode từ giao diện JwtDecoder
     @Override
     public Jwt decode(String token) throws JwtException {
         try {
-            // Tạo một yêu cầu introspect để xác thực token
-            var response = authenticationService.introspect(
-                    IntrospectRequest.builder().token(token).build());
-            if (!response.isValid()) {
-                throw new JwtException("Token invalid");
-            }
-        } catch (Exception e) {
-            throw new JwtException(e.getMessage());
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return new Jwt(token,
+                    signedJWT.getJWTClaimsSet().getIssueTime().toInstant(),
+                    signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
+                    signedJWT.getHeader().toJSONObject(),
+                    signedJWT.getJWTClaimsSet().getClaims()
+                    );
+        } catch (ParseException e) {
+            throw new JwtException("Invalid token");
         }
 
-        // Nếu nimbusJwtDecoder chưa được khởi tạo, thì khởi tạo nó
-        if (Objects.isNull(nimbusJwtDecoder)) {
-            // Tạo khóa bí mật từ signerKey với thuật toán HS512
-            SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
-                    .macAlgorithm(MacAlgorithm.HS512)
-                    .build();
-        }
-
-        // Giải mã và trả về đối tượng Jwt
-        return nimbusJwtDecoder.decode(token);
     }
 }

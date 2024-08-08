@@ -27,7 +27,7 @@ public class UserController {
 
     UserService userService;
 
-    @PostMapping
+    @PostMapping("/registration")
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         log.info("Controller: create user");
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();

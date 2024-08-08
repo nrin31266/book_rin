@@ -1,4 +1,4 @@
-package com.rin.identity.configuration;
+package com.rin.profile.configuration;
 
 
 import org.springframework.context.annotation.Bean;
@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
@@ -23,9 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    // Định nghĩa các endpoint công khai (không yêu cầu xác thực)
     private static final String[] PUBLIC_ENDPOINTS = {
-        "/users/registration", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
@@ -34,25 +31,25 @@ public class SecurityConfig {
         this.customJwtDecoder = customJwtDecoder;
     }
 
-    // Bean cấu hình chuỗi bộ lọc bảo mật
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        // Cấu hình các yêu cầu HTTP
+
         httpSecurity.authorizeHttpRequests(
                 request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                        .permitAll() // Cho phép các POST request đến các endpoint công khai
+                        .permitAll()
                         .anyRequest()
-                        .authenticated() // Yêu cầu xác thực cho các yêu cầu khác
+                        .authenticated()
                 );
 
-        // Cấu hình OAuth2 Resource Server
+
         httpSecurity.oauth2ResourceServer(
                 osutj2 -> osutj2.jwt(jwtConfigurer -> jwtConfigurer
-                                .decoder(customJwtDecoder) // Sử dụng CustomJwtDecoder để giải mã JWT
+                                .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(
-                                        jwtAuthenticationConverter())) // Sử dụng jwtAuthenticationConverter tùy chỉnh
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) // Xử lý lỗi xác thực bằng JwtAuthenticationEntryPoint
+                                        jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 );
 
         // Vô hiệu hóa CSRF (Cross-Site Request Forgery)
@@ -65,7 +62,7 @@ public class SecurityConfig {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix(""); // Không đặt tiền tố cho các quyền
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
@@ -86,11 +83,5 @@ public class SecurityConfig {
 
 
         return new CorsFilter(urlBasedCorsConfigurationSource);
-    }
-
-    // Bean tạo PasswordEncoder sử dụng BCrypt với độ mạnh là 10
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
     }
 }

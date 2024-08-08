@@ -34,7 +34,7 @@ public class ApplicationInitConfig {
             prefix = "spring",
             value = "datasource.driverClassName",
             havingValue = "com.mysql.cj.jdbc.Driver",
-            matchIfMissing = false) // Tác dụng: Chỉ khi
+            matchIfMissing = false)
     ApplicationRunner applicationRunner(UserRepository userRepository) {
         log.info("Initializing application.....");
         return args -> {
