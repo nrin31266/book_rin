@@ -40,13 +40,10 @@ public class CustomJwtDecoder implements JwtDecoder {
             // Tạo một yêu cầu introspect để xác thực token
             var response = authenticationService.introspect(
                     IntrospectRequest.builder().token(token).build());
-
-            // Nếu token không hợp lệ, ném ra ngoại lệ JwtException
             if (!response.isValid()) {
                 throw new JwtException("Token invalid");
             }
-        } catch (ParseException | JOSEException e) {
-            // Bắt các ngoại lệ có thể xảy ra và ném ra ngoại lệ JwtException với thông báo lỗi cụ thể
+        } catch (Exception e) {
             throw new JwtException(e.getMessage());
         }
 

@@ -48,17 +48,21 @@ public class AuthenticationService {
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
-    public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
-
+    public IntrospectResponse introspect(IntrospectRequest request){
         var token = request.getToken();
-        boolean isValid = true;
+        boolean isValid = false;
+
         try {
             verifyToken(token);
-        } catch (AppException e) {
-            isValid = false;
+            isValid = true;
+        } catch (JOSEException | ParseException e) {
+            log.info("Invalid token");
         }
 
-        return IntrospectResponse.builder().valid(isValid).build();
+
+        return IntrospectResponse.builder().
+                valid(isValid)
+                .build();
     }
 
     public AuthenticationResponse authenticated(AuthenticationRequest request) {
@@ -121,7 +125,7 @@ public class AuthenticationService {
 
         Date exprityTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        if (!(verified && exprityTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (!(verified && exprityTime.after(new Date()))) throw new AppException(ErrorCode.EXPIRED);
 
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);

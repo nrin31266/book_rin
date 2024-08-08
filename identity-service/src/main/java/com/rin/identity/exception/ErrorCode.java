@@ -18,7 +18,8 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     NOT_EMPTY(1010, "{value} must not be left empty", HttpStatus.BAD_REQUEST),
-    INVALID_TOKEN(1010, "{value} must not be left empty", HttpStatus.UNAUTHORIZED);
+    INVALID_TOKEN(1011, "{value} must not be left empty", HttpStatus.UNAUTHORIZED),
+    EXPIRED(1012, "Token has expired", HttpStatus.UNAUTHORIZED),;
     private int code;
     private String message;
     private HttpStatusCode statusCode;
