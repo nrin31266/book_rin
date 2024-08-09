@@ -26,6 +26,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 @RequiredArgsConstructor
@@ -47,9 +49,7 @@ public class UserService {
 
     public UserResponse createUser(UserCreationRequest request) {
         log.info("Service: create user");
-//        if (userRepository.existsByUsername(request.getUsername())) {
-//            throw new AppException(ErrorCode.USER_EXISTED);
-//        }
+
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         if (request.getRoles() != null) {
@@ -64,7 +64,8 @@ public class UserService {
         //Create profile
         var profileRequest = profileMapper.toProfileCreationRequest(request);
         profileRequest.setUserId(user.getId());
-        profileClient.create(profileRequest);
+
+        profileClient.createProfile(profileRequest);
 
         return userMapper.toUserResponse(user);
     }
