@@ -23,7 +23,6 @@ import org.springframework.web.filter.CorsFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    // Định nghĩa các endpoint công khai (không yêu cầu xác thực)
     private static final String[] PUBLIC_ENDPOINTS = {
         "/users/registration", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
     };
@@ -34,25 +33,24 @@ public class SecurityConfig {
         this.customJwtDecoder = customJwtDecoder;
     }
 
-    // Bean cấu hình chuỗi bộ lọc bảo mật
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        // Cấu hình các yêu cầu HTTP
+
         httpSecurity.authorizeHttpRequests(
                 request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                        .permitAll() // Cho phép các POST request đến các endpoint công khai
+                        .permitAll()
                         .anyRequest()
-                        .authenticated() // Yêu cầu xác thực cho các yêu cầu khác
+                        .authenticated()
                 );
 
-        // Cấu hình OAuth2 Resource Server
+
         httpSecurity.oauth2ResourceServer(
                 osutj2 -> osutj2.jwt(jwtConfigurer -> jwtConfigurer
-                                .decoder(customJwtDecoder) // Sử dụng CustomJwtDecoder để giải mã JWT
+                                .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(
-                                        jwtAuthenticationConverter())) // Sử dụng jwtAuthenticationConverter tùy chỉnh
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) // Xử lý lỗi xác thực bằng JwtAuthenticationEntryPoint
+                                        jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 );
 
         // Vô hiệu hóa CSRF (Cross-Site Request Forgery)
@@ -61,7 +59,7 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    // Bean tạo JwtAuthenticationConverter tùy chỉnh
+
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -73,20 +71,7 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
-    @Bean
-    public CorsFilter corsFilter(){
-        CorsConfiguration corsConfiguration= new CorsConfiguration();
 
-        corsConfiguration.addAllowedOrigin("http://localhost:8888");
-        corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addAllowedHeader("*");
-
-        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource= new UrlBasedCorsConfigurationSource();
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
-
-
-        return new CorsFilter(urlBasedCorsConfigurationSource);
-    }
 
     // Bean tạo PasswordEncoder sử dụng BCrypt với độ mạnh là 10
     @Bean

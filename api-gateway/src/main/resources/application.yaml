@@ -5,6 +5,8 @@ app:
   api-prefix: /api/v1
 
 spring:
+  main:
+    web-application-type: reactive
   application:
     name: api-gateway
   cloud:
