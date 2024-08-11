@@ -11,6 +11,8 @@ import feign.FeignException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +22,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailService {
     EmailClient emailClient;
-    String apiKey = "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";
+    @NonFinal
+    @Value("${app.api-key}")
+    String apiKey;
     public EmailResponse sendEmail(SendEmailRequest request) {
         EmailRequest emailRequest = EmailRequest.builder()
                 .sender(Sender.builder()

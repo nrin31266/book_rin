@@ -2,9 +2,12 @@ server:
   port: 8082
   servlet:
     context-path: /notification
+app:
+  api-key: "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"
 spring:
   application:
     name: notification-service
   data:
     mongodb:
       uri: mongodb://root:16092005@localhost:27017/notification-service?authSource=admin
+
