@@ -1,13 +1,12 @@
-package com.devteria.notification.dto.request;
+package com.rin.notification.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SendEmailRequest {

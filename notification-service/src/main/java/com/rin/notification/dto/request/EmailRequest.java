@@ -1,4 +1,4 @@
-package com.devteria.notification.dto.request;
+package com.rin.notification.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

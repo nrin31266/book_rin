@@ -1,12 +1,12 @@
-package com.devteria.notification.service;
+package com.rin.notification.service;
 
-import com.devteria.notification.dto.request.EmailRequest;
-import com.devteria.notification.dto.request.SendEmailRequest;
-import com.devteria.notification.dto.request.Sender;
-import com.devteria.notification.dto.response.EmailResponse;
-import com.devteria.notification.exception.AppException;
-import com.devteria.notification.exception.ErrorCode;
-import com.devteria.notification.respository.httpclient.EmailClient;
+import com.rin.notification.dto.request.EmailRequest;
+import com.rin.notification.dto.request.SendEmailRequest;
+import com.rin.notification.dto.request.Sender;
+import com.rin.notification.dto.response.EmailResponse;
+import com.rin.notification.exception.AppException;
+import com.rin.notification.exception.ErrorCode;
+import com.rin.notification.respository.httpclient.EmailClient;
 import feign.FeignException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class EmailService {
     public EmailResponse sendEmail(SendEmailRequest request) {
         EmailRequest emailRequest = EmailRequest.builder()
                 .sender(Sender.builder()
-                        .name("Nguyen Van Rin")
+                        .name("NV Rin")
                         .email("nrin31266@gmail.com")
                         .build())
                 .to(List.of(request.getTo()))

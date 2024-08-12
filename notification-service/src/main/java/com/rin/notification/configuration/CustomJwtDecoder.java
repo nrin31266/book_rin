@@ -1,4 +1,4 @@
-package com.devteria.notification.configuration;
+package com.rin.notification.configuration;
 
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.oauth2.jwt.Jwt;

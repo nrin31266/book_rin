@@ -35,5 +35,8 @@ public class UserCreationRequest {
     @TextConstraint(value = "City", message = "NOT_EMPTY")
     String city;
 
+    @TextConstraint(value = "Email", message = "NOT_EMPTY")
+    String email;
+
     List<String> roles;
 }

@@ -3,7 +3,7 @@ server:
   servlet:
     context-path: /notification
 app:
-  api-key: "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"
+  api-key: "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"
 spring:
   application:
     name: notification-service
@@ -15,6 +15,12 @@ spring:
     consumer:
       group-id: notification-group
       auto-offset-reset: earliest
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+notification:
+  email:
+    brevo-url: https://api.brevo.com
+    brevo-apikey: <key>
 

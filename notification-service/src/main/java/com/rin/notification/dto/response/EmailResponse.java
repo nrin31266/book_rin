@@ -1,12 +1,9 @@
-    package com.devteria.notification.dto.response;
+    package com.rin.notification.dto.response;
 
-import com.devteria.notification.dto.request.Sender;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
-@Getter
+    @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor

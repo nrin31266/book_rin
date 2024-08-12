@@ -1,4 +1,4 @@
-package com.devteria.notification.dto.request;
+package com.rin.notification.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,7 +8,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Recipient {
+@Builder
+public class Sender {
     String name;
     String email;
 }

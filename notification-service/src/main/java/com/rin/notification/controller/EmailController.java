@@ -1,15 +1,14 @@
-package com.devteria.notification.controller;
+package com.rin.notification.controller;
 
-import com.devteria.notification.service.EmailService;
-import com.devteria.notification.dto.ApiResponse;
-import com.devteria.notification.dto.request.SendEmailRequest;
-import com.devteria.notification.dto.response.EmailResponse;
+import com.rin.notification.service.EmailService;
+import com.rin.notification.dto.ApiResponse;
+import com.rin.notification.dto.request.SendEmailRequest;
+import com.rin.notification.dto.response.EmailResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;

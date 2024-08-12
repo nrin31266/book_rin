@@ -2,7 +2,9 @@ package com.rin.identity.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
+import com.rin.event.dto.NotificationEvent;
 import com.rin.identity.mapper.ProfileMapper;
 import com.rin.identity.repository.httpclient.ProfileClient;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,7 +43,7 @@ public class UserService {
     RoleRepository roleRepository;
     ProfileClient profileClient;
     ProfileMapper profileMapper;
-    KafkaTemplate<String, String> kafkaTemplate;
+    KafkaTemplate<String, Object> kafkaTemplate;
     public UserResponse createUser(UserCreationRequest request) {
         log.info("Service: create user");
 
@@ -62,7 +64,13 @@ public class UserService {
 
         profileClient.createProfile(profileRequest);
         //Public message to kafka
-        kafkaTemplate.send("onboard-successful", "Welcome our new member " + user.getUsername());
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Well come to book rin")
+                .body("Hello " + request.getUsername())
+                .build();
+        kafkaTemplate.send("notification-delivery", notificationEvent);
 
 
         return userMapper.toUserResponse(user);
