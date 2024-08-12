@@ -1,4 +1,4 @@
-package com.devteria.notification.Service;
+package com.devteria.notification.service;
 
 import com.devteria.notification.dto.request.EmailRequest;
 import com.devteria.notification.dto.request.SendEmailRequest;

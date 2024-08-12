@@ -6,6 +6,7 @@ import java.util.List;
 import com.rin.identity.mapper.ProfileMapper;
 import com.rin.identity.repository.httpclient.ProfileClient;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,19 +35,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UserService {
-
     UserRepository userRepository;
-
     UserMapper userMapper;
-
     PasswordEncoder passwordEncoder;
-
     RoleRepository roleRepository;
-
     ProfileClient profileClient;
-
     ProfileMapper profileMapper;
-
+    KafkaTemplate<String, String> kafkaTemplate;
     public UserResponse createUser(UserCreationRequest request) {
         log.info("Service: create user");
 
@@ -66,6 +61,9 @@ public class UserService {
         profileRequest.setUserId(user.getId());
 
         profileClient.createProfile(profileRequest);
+        //Public message to kafka
+        kafkaTemplate.send("onboard-successful", "Welcome our new member " + user.getUsername());
+
 
         return userMapper.toUserResponse(user);
     }
