@@ -1,4 +1,4 @@
-package com.rin.profile.configuration;
+package com.rin.post.configuration;
 
 
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,6 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
-        "/internal/users"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
