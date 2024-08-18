@@ -19,12 +19,5 @@ public class UserUpdateRequest {
     @Size(min = 4, message = "PASSWORD_INVALID")
     String password;
 
-    String firstName;
-
-    String lastName;
-
-    @DobConstraint(min = 16, message = "INVALID_DOB")
-    LocalDate dob;
-
     List<String> roles;
 }

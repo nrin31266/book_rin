@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/identity-service
     driverClassName: com.mysql.cj.jdbc.Driver
-    username: root
+    username: nrin31266
     password: 16092005
   jpa:
     hibernate:

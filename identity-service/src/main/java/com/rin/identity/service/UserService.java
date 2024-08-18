@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.rin.event.dto.NotificationEvent;
+import com.rin.identity.entity.Role;
 import com.rin.identity.mapper.ProfileMapper;
 import com.rin.identity.repository.httpclient.ProfileClient;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -84,13 +85,13 @@ public class UserService {
         return userMapper.toUserResponse(users);
     }
 
-    @PostAuthorize("returnObject.username == authentication.name || hasRole('ADMIN')")
+    @PostAuthorize("returnObject.id == authentication.name || hasRole('ADMIN')")
     public UserResponse getUser(String userID) {
         return userMapper.toUserResponse(
                 userRepository.findById(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
-    @PostAuthorize("returnObject.username == authentication.name || hasRole('ADMIN')")
+    @PostAuthorize("returnObject.id == authentication.name || hasRole('ADMIN')")
     public UserResponse updateUser(String userID, UserUpdateRequest request) {
         User user = userRepository.findById(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -98,7 +99,7 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        List<com.rin.identity.entity.Role> roles = roleRepository.findAllById(request.getRoles());
+        List<Role> roles = roleRepository.findAllById(request.getRoles());
 
         user.setRoles(new HashSet<>(roles));
 
@@ -108,9 +109,9 @@ public class UserService {
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
 
-        String name = context.getAuthentication().getName();
+        String userId = context.getAuthentication().getName();
 
-        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
     }

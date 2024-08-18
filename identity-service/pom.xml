@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
     <groupId>com.rin</groupId>
-    <artifactId>identity</artifactId>
+    <artifactId>identity-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>identity</name>
     <description>identity</description>
