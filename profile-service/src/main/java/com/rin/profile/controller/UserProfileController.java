@@ -1,6 +1,7 @@
 package com.rin.profile.controller;
 
 import com.rin.profile.dto.request.ProfileCreationRequest;
+import com.rin.profile.dto.response.ApiResponse;
 import com.rin.profile.dto.response.UserProfileResponse;
 import com.rin.profile.service.UserProfileService;
 import lombok.AccessLevel;
@@ -25,4 +26,12 @@ public class UserProfileController {
     List<UserProfileResponse> getUserProfiles() {
         return userProfileService.getAllUserProfiles();
     }
+
+    @GetMapping("/users/my-profile")
+    ApiResponse<UserProfileResponse> getMyProfile() {
+        return ApiResponse.<UserProfileResponse>builder()
+                .result(userProfileService.getMyProfile())
+                .build();
+    }
+
 }

@@ -3,6 +3,8 @@ package com.rin.profile.service;
 import com.rin.profile.dto.request.ProfileCreationRequest;
 import com.rin.profile.dto.response.UserProfileResponse;
 import com.rin.profile.entity.UserProfile;
+import com.rin.profile.exception.AppException;
+import com.rin.profile.exception.ErrorCode;
 import com.rin.profile.mapper.UserProfileMapper;
 import com.rin.profile.repository.UserProfileRepository;
 import lombok.AccessLevel;
@@ -10,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -43,4 +47,10 @@ public class UserProfileService {
         return userProfiles.stream().map(userProfileMapper::toUserProfileReponse).toList();
     }
 
+    public UserProfileResponse getMyProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        return userProfileMapper.toUserProfileReponse(userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+    }
 }
