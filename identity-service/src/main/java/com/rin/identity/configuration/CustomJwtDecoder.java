@@ -20,20 +20,6 @@ import com.rin.identity.service.AuthenticationService;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
-    // Annotation @Value để lấy giá trị từ file cấu hình ứng dụng
-    @Value("${jwt.signerKey}")
-    private String signerKey;
-
-    // Annotation @Autowired để inject đối tượng AuthenticationService
-    private final AuthenticationService authenticationService;
-
-    public CustomJwtDecoder(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
-    // Biến để giữ instance của NimbusJwtDecoder
-    private NimbusJwtDecoder nimbusJwtDecoder = null;
-
-
 
     @Override
     public Jwt decode(String token) throws JwtException {

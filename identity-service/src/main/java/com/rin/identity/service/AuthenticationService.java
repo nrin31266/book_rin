@@ -5,7 +5,14 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import com.rin.identity.dto.request.*;
+import com.rin.identity.enums.Role;
+import com.rin.identity.repository.httpclient.OutboundIdentityClient;
+import com.rin.identity.repository.httpclient.OutboundUserClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,10 +23,6 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.rin.identity.dto.request.AuthenticationRequest;
-import com.rin.identity.dto.request.IntrospectRequest;
-import com.rin.identity.dto.request.LogoutRequest;
-import com.rin.identity.dto.request.RefreshRequest;
 import com.rin.identity.dto.response.AuthenticationResponse;
 import com.rin.identity.dto.response.IntrospectResponse;
 import com.rin.identity.entity.InvalidatedToken;
@@ -42,13 +45,21 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthenticationService {
 
     UserRepository userRepository;
+
     InvalidatedTokenRepository invalidatedTokenRepository;
+    OutboundIdentityClient outboundIdentityClient;
+    OutboundUserClient outboundUserClient;
+
+    @Lazy
+    UserService userService;
 
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
-    public IntrospectResponse introspect(IntrospectRequest request){
+
+
+    public IntrospectResponse introspect(IntrospectRequest request) {
         var token = request.getToken();
         boolean isValid = false;
 
@@ -115,6 +126,53 @@ public class AuthenticationService {
         return AuthenticationResponse.builder().token(token).authenticated(true).build();
     }
 
+    @NonFinal
+    @Value("${outbound.identity.client-id}")
+    protected String CLIENT_ID;
+
+    @NonFinal
+    @Value("${outbound.identity.client-secret}")
+    protected String CLIENT_SECRET;
+
+    @NonFinal
+    @Value("${outbound.identity.redirect-uri}")
+    protected String REDIRECT_URI;
+
+    @NonFinal
+    @Value("authorization_code")
+    protected String GRANT_TYPE;
+
+    public AuthenticationResponse outboundAuthentication(String code) {
+        var response = outboundIdentityClient.exchangeToken(
+                ExchangeTokenRequest.builder()
+                        .code(code)
+                        .clientId(CLIENT_ID)
+                        .clientSecret(CLIENT_SECRET)
+                        .redirectUri(REDIRECT_URI)
+                        .grantType(GRANT_TYPE)
+                        .build()
+        );
+
+        var userInfo = outboundUserClient.getUserInfo("json", response.getAccessToken());
+        log.info("USER INFO: {}", userInfo);
+        if(userRepository.findByUsername("email."+userInfo.getEmail()).isEmpty()){
+            UserCreationRequest userCreationRequest =
+                    UserCreationRequest.builder()
+                            .username("email."+userInfo.getEmail())
+                            .lastName(userInfo.getFamilyName())
+                            .firstName(userInfo.getGivenName())
+                            .email(userInfo.getEmail())
+                            .password("email")
+                            .roles(List.of(Role.USER.name()))
+                            .build();
+            userService.createUser(userCreationRequest);
+        }
+
+        return AuthenticationResponse.builder()
+                .token(response.getAccessToken())
+                .build();
+    }
+
     private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
 
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
@@ -123,9 +181,9 @@ public class AuthenticationService {
 
         var verified = signedJWT.verify(verifier);
 
-        Date exprityTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expiredTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        if (!(verified && exprityTime.after(new Date()))) throw new AppException(ErrorCode.EXPIRED);
+        if (!(verified && expiredTime.after(new Date()))) throw new AppException(ErrorCode.EXPIRED);
 
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);

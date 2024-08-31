@@ -63,6 +63,17 @@ services:
     networks:
       - microservice-network
 
+  mysqladmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ms_mysqladmin
+    ports:
+      - "8181:80"
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+    networks:
+      - microservice-network
+
 volumes:
   mysql-data:
   neo4j-data:

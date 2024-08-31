@@ -34,4 +34,12 @@ public class UserProfileController {
                 .build();
     }
 
+    @DeleteMapping("/users/{userId}")
+    ApiResponse deleteUser(@PathVariable("userId") String userId) {
+        userProfileService.deleteProfile(userId);
+        return ApiResponse.builder()
+                .message("Successfully deleted")
+                .build();
+    }
+
 }

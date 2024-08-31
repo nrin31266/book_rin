@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import com.rin.constant.PredefinedRole;
+import lombok.experimental.NonFinal;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.rin.identity.entity.User;
-import com.rin.identity.enums.Role;
+import com.rin.identity.entity.Role;
 import com.rin.identity.repository.RoleRepository;
 import com.rin.identity.repository.UserRepository;
 
@@ -20,36 +22,53 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
-@Configuration // Annotation này cho biết đây là một lớp cấu hình của Spring Boot.
+@Configuration
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApplicationInitConfig {
 
     PasswordEncoder passwordEncoder;
-    RoleRepository roleRepository;
+
+    @NonFinal
+    static final String ADMIN_USER_NAME = "admin";
+
+    @NonFinal
+    static final String ADMIN_PASSWORD = "admin";
 
     @Bean
     @ConditionalOnProperty(
             prefix = "spring",
             value = "datasource.driverClassName",
-            havingValue = "com.mysql.cj.jdbc.Driver",
-            matchIfMissing = false)
-    ApplicationRunner applicationRunner(UserRepository userRepository) {
+            havingValue = "com.mysql.cj.jdbc.Driver")
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         log.info("Initializing application.....");
         return args -> {
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                List<String> role = new ArrayList<>();
-                role.add(Role.ADMIN.name());
-                List<com.rin.identity.entity.Role> roles = roleRepository.findAllById(role);
+            if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
+                roleRepository.save(Role.builder()
+                        .name(PredefinedRole.USER_ROLE)
+                        .description("User role")
+                        .build());
+
+                Role adminRole = roleRepository.save(Role.builder()
+                        .name(PredefinedRole.ADMIN_ROLE)
+                        .description("Admin role")
+                        .build());
+
+                var roles = new HashSet<Role>();
+                roles.add(adminRole);
+
                 User user = User.builder()
-                        .username("admin")
-                        .password(passwordEncoder.encode("admin"))
-                        .roles(new HashSet<>(roles))
+                        .username(ADMIN_USER_NAME)
+                        .emailVerified(true)
+                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .roles(roles)
                         .build();
+
                 userRepository.save(user);
                 log.warn("admin user has been created with default password: admin, please change it");
             }
+            log.info("Application initialization completed .....");
         };
     }
 }

@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface UserProfileRepository extends Neo4jRepository<UserProfile, String> {
     Optional<UserProfile> findByUserId(String userId);
+    void deleteByUserId(String userId);
 }

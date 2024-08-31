@@ -73,4 +73,12 @@ public class UserController {
         userService.deleteUser(userID);
         return "Successfully delete a user!";
     }
+
+    @DeleteMapping("/delete-by-username/{username}")
+    ApiResponse deleteUserByUserName(@PathVariable("username") String userName) {
+        userService.deleteUserByUserName(userName);
+        return ApiResponse.builder()
+                .message("Successfully delete a user with username: " + userName)
+                .build();
+    }
 }

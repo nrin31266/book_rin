@@ -1,19 +1,26 @@
 package com.rin.identity.dto.response;
 
-import java.time.LocalDate;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserResponse {
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class OutboundUserResponse {
     String id;
-    String username;
     String email;
-    Set<RoleResponse> roles;
+    boolean verifiedEmail;
+    String name;
+    String givenName;
+    String familyName;
+    String picture;
+    String hd;
+    String locale;
 }

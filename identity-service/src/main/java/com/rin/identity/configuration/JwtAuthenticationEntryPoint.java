@@ -20,30 +20,23 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(
             HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
-            throws IOException, ServletException {
+            throws IOException {
 
-        // Lấy mã lỗi cho trạng thái không xác thực
         ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
 
-        // Đặt mã trạng thái HTTP của phản hồi
         response.setStatus(errorCode.getStatusCode().value());
 
-        // Đặt kiểu nội dung của phản hồi là JSON
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        // Tạo đối tượng ApiResponse với mã lỗi và thông điệp lỗi
         ApiResponse<?> apiResponse = ApiResponse.builder()
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())
                 .build();
 
-        // Chuyển đổi đối tượng ApiResponse sang JSON
         ObjectMapper objectMapper = new ObjectMapper();
 
-        // Ghi chuỗi JSON vào phản hồi HTTP
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
 
-        // Đẩy nội dung phản hồi đến client
         response.flushBuffer();
     }
 }

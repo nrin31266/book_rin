@@ -2,10 +2,8 @@ package com.rin.identity.controller;
 
 import java.text.ParseException;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 import com.nimbusds.jose.JOSEException;
 import com.rin.identity.dto.request.*;
@@ -24,8 +22,17 @@ import lombok.experimental.FieldDefaults;
 public class AuthenticationController {
     AuthenticationService authenticationService;
 
+    @PostMapping("/outbound/authentication")
+    public ApiResponse<AuthenticationResponse> outboundAuthentication(
+            @RequestParam("code") String code){
+            var result = authenticationService.outboundAuthentication(code);
+
+            return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+    }
+
+
     @PostMapping("/token")
-    public ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ApiResponse<AuthenticationResponse> authenticate(@RequestBody @Valid AuthenticationRequest request) {
         var result = authenticationService.authenticated(request);
 
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();

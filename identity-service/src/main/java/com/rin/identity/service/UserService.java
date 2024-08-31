@@ -3,6 +3,7 @@ package com.rin.identity.service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import com.rin.event.dto.NotificationEvent;
 import com.rin.identity.entity.Role;
@@ -46,24 +47,31 @@ public class UserService {
     ProfileMapper profileMapper;
     KafkaTemplate<String, Object> kafkaTemplate;
     public UserResponse createUser(UserCreationRequest request) {
-        log.info("Service: create user");
+
 
         User user = userMapper.toUser(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        if (request.getRoles() != null) {
-            List<com.rin.identity.entity.Role> roles = roleRepository.findAllById(request.getRoles());
-            user.setRoles(new HashSet<>(roles));
-        }
+        String userId = UUID.randomUUID().toString();
+        log.info("Service: create user with id {}", userId);
+        user.setId(userId);
+
+        var profileRequest = profileMapper.toProfileCreationRequest(request);
+
+        profileRequest.setUserId(userId);
+
+
+
+        if(!user.getPassword().equals("email"))
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        log.info("Role {}", request.getRoles());
+
+        user.setRoles(getRoles(request.getRoles()));
+        profileClient.createProfile(profileRequest);
         try {
             user = userRepository.save(user);
         }catch (DataIntegrityViolationException exception){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
-        //Create profile
-        var profileRequest = profileMapper.toProfileCreationRequest(request);
-        profileRequest.setUserId(user.getId());
-
-        profileClient.createProfile(profileRequest);
         //Public message to kafka
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .channel("EMAIL")
@@ -72,9 +80,14 @@ public class UserService {
                 .body("Hello " + request.getUsername())
                 .build();
         kafkaTemplate.send("notification-delivery", notificationEvent);
-
-
         return userMapper.toUserResponse(user);
+    }
+    private HashSet<Role> getRoles(List<String> requestedRoles) {
+        if (requestedRoles == null || requestedRoles.isEmpty()) {
+            return null;
+        }
+        List<Role> roles = roleRepository.findAllById(requestedRoles);
+        return new HashSet<>(roles);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -118,5 +131,14 @@ public class UserService {
     @PostAuthorize("hasRole('ADMIN')")
     public void deleteUser(String userID) {
         userRepository.deleteById(userID);
+    }
+
+    public void deleteUserByUserName(String userName) {
+        var user = userRepository.findByUsername(userName)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        profileClient.deleteProfile(user.getId());
+        user.getRoles().clear();
+        userRepository.save(user);
+        userRepository.deleteById(user.getId());
     }
 }

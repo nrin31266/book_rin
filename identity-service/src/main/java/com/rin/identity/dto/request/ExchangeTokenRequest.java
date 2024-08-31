@@ -1,5 +1,7 @@
 package com.rin.identity.dto.request;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,6 +11,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RefreshRequest {
-    String token;
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class ExchangeTokenRequest {
+    String code;
+    String clientId;
+    String clientSecret;
+    String redirectUri;
+    String grantType;
 }

@@ -19,10 +19,15 @@ public enum ErrorCode {
     INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     NOT_EMPTY(1010, "{value} must not be left empty", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(1011, "{value} must not be left empty", HttpStatus.UNAUTHORIZED),
-    EXPIRED(1012, "Token has expired", HttpStatus.UNAUTHORIZED),;
-    private int code;
-    private String message;
-    private HttpStatusCode statusCode;
+    EXPIRED(1012, "Token has expired", HttpStatus.UNAUTHORIZED),
+    NOT_FOUND_IN_FEIGN(1013, "Resource not found in Feign client", HttpStatus.NOT_FOUND),
+    CANNOT_CREATE_PROFILE(1014, "Can't create profile", HttpStatus.BAD_REQUEST),
+    INVALID_LOGIN_INFORMATION(1015, "Invalid login information", HttpStatus.BAD_REQUEST),
+    ;
+
+    private final int code;
+    private final String message;
+    private final HttpStatusCode statusCode;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

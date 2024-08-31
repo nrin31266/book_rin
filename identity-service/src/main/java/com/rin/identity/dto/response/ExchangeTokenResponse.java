@@ -1,4 +1,4 @@
-package com.rin.identity.dto.request;
+package com.rin.identity.dto.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -12,10 +12,10 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class ExchangeTokenRequest {
-    String code;
-    String clientId;
-    String clientSecret;
-    String redirectUri;
-    String grantType;
+public class ExchangeTokenResponse {
+    String accessToken;
+    String expiresIn;
+    String refreshToken;
+    String scope;
+    String tokenType;
 }
