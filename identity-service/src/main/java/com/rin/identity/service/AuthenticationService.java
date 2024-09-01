@@ -7,10 +7,9 @@ import java.util.*;
 
 import com.rin.identity.dto.request.*;
 import com.rin.identity.enums.Role;
+import com.rin.identity.mapper.UserMapper;
 import com.rin.identity.repository.httpclient.OutboundIdentityClient;
 import com.rin.identity.repository.httpclient.OutboundUserClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -49,6 +48,7 @@ public class AuthenticationService {
     InvalidatedTokenRepository invalidatedTokenRepository;
     OutboundIdentityClient outboundIdentityClient;
     OutboundUserClient outboundUserClient;
+    UserMapper userMapper;
 
     @Lazy
     UserService userService;
@@ -152,24 +152,29 @@ public class AuthenticationService {
                         .grantType(GRANT_TYPE)
                         .build()
         );
-
+        //Get user info
         var userInfo = outboundUserClient.getUserInfo("json", response.getAccessToken());
         log.info("USER INFO: {}", userInfo);
-        if(userRepository.findByUsername("email."+userInfo.getEmail()).isEmpty()){
+        //Onboard user
+        Optional<User> user = userRepository.findByUsername(userInfo.getEmail());
+        if(user.isEmpty()){
             UserCreationRequest userCreationRequest =
                     UserCreationRequest.builder()
-                            .username("email."+userInfo.getEmail())
+                            .username(userInfo.getEmail())
                             .lastName(userInfo.getFamilyName())
                             .firstName(userInfo.getGivenName())
                             .email(userInfo.getEmail())
                             .password("email")
                             .roles(List.of(Role.USER.name()))
                             .build();
-            userService.createUser(userCreationRequest);
+            var userResponse  = userService.createUser(userCreationRequest);
+            user = Optional.of(userMapper.toUser(userResponse));
         }
+        //Convert token
+        var token = generateToken(user.get());
 
         return AuthenticationResponse.builder()
-                .token(response.getAccessToken())
+                .token(token)
                 .build();
     }
 

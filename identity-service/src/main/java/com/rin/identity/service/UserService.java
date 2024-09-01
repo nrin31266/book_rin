@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.rin.event.dto.NotificationEvent;
+import com.rin.identity.dto.request.UserCreationPasswordRequest;
 import com.rin.identity.entity.Role;
 import com.rin.identity.mapper.ProfileMapper;
 import com.rin.identity.repository.httpclient.ProfileClient;
@@ -31,6 +32,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -58,10 +60,12 @@ public class UserService {
 
         profileRequest.setUserId(userId);
 
-
-
-        if(!user.getPassword().equals("email"))
+        if(user.getPassword().equals("email")){
+            user.setPassword(null);
+        }else{
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
 
         log.info("Role {}", request.getRoles());
 
@@ -125,8 +129,9 @@ public class UserService {
         String userId = context.getAuthentication().getName();
 
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        return userMapper.toUserResponse(user);
+        var userResponse = userMapper.toUserResponse(user);
+        userResponse.setNoPassword(!StringUtils.hasText(user.getPassword()));
+        return userResponse;
     }
     @PostAuthorize("hasRole('ADMIN')")
     public void deleteUser(String userID) {
@@ -140,5 +145,18 @@ public class UserService {
         user.getRoles().clear();
         userRepository.save(user);
         userRepository.deleteById(user.getId());
+    }
+
+    public void createUserPassword(UserCreationPasswordRequest request) {
+        var context = SecurityContextHolder.getContext();
+        String userId = context.getAuthentication().getName();
+        var user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if(!StringUtils.hasText(user.getPassword())){
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            userRepository.save(user);
+        }else {
+            throw new AppException(ErrorCode.PASSWORD_EXISTED);
+        }
+
     }
 }

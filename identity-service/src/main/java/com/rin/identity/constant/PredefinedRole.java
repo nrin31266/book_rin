@@ -1,4 +1,4 @@
-package com.rin.constant;
+package com.rin.identity.constant;
 
 public class PredefinedRole {
     public static final String USER_ROLE = "USER";

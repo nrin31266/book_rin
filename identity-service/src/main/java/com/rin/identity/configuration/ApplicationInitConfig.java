@@ -1,10 +1,8 @@
 package com.rin.identity.configuration;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
-import com.rin.constant.PredefinedRole;
+import com.rin.identity.constant.PredefinedRole;
 import lombok.experimental.NonFinal;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

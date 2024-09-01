@@ -3,7 +3,7 @@ server:
   servlet:
     context-path: /notification
 app:
-  api-key: "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"
+  api-key: "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"
 spring:
   application:
     name: notification-service

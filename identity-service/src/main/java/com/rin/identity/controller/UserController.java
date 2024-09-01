@@ -2,6 +2,7 @@ package com.rin.identity.controller;
 
 import java.util.List;
 
+import com.rin.identity.dto.request.UserCreationPasswordRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +34,13 @@ public class UserController {
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.createUser(request));
         return apiResponse;
+    }
+    @PostMapping("/create-password")
+    ApiResponse<Void> createPassword(@RequestBody @Valid UserCreationPasswordRequest request) {
+        userService.createUserPassword(request);
+        return ApiResponse.<Void>builder()
+                .message("Password has been created, you could use it to login system")
+                .build();
     }
 
     @GetMapping

@@ -3,6 +3,9 @@ package com.rin.identity.dto.request;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import com.rin.identity.validator.DobConstraint;
@@ -17,9 +20,14 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
+    @NotNull(message = "INVALID_INFORMATION")
+    @NotEmpty(message = "INVALID_INFORMATION")
+    @NotBlank(message = "INVALID_INFORMATION")
     @Size(min = 4, message = "USERNAME_INVALID")
     String username;
-
+    @NotNull(message = "INVALID_INFORMATION")
+    @NotEmpty(message = "INVALID_INFORMATION")
+    @NotBlank(message = "INVALID_INFORMATION")
     @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
 

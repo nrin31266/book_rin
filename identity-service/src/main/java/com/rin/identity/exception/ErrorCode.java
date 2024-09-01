@@ -22,7 +22,8 @@ public enum ErrorCode {
     EXPIRED(1012, "Token has expired", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_IN_FEIGN(1013, "Resource not found in Feign client", HttpStatus.NOT_FOUND),
     CANNOT_CREATE_PROFILE(1014, "Can't create profile", HttpStatus.BAD_REQUEST),
-    INVALID_LOGIN_INFORMATION(1015, "Invalid login information", HttpStatus.BAD_REQUEST),
+    INVALID_INFORMATION(1015, "Invalid information", HttpStatus.BAD_REQUEST),
+    PASSWORD_EXISTED(1016, "Password existed", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;
