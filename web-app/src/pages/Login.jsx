@@ -14,6 +14,8 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logIn, isAuthenticated } from "../services/authenticationService";
+import { OAuthConfig } from "../configurations/configuration";
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -22,14 +24,25 @@ export default function Login() {
     if (reason === "clickaway") {
       return;
     }
-
     setSnackBarOpen(false);
   };
 
-  const handleClick = () => {
-    alert(
-      "Please refer to Oauth2 series for this implemetation guidelines. https://www.youtube.com/playlist?list=PL2xsxmVse9IbweCh6QKqZhousfEWabSeq"
-    );
+  const handleCreateAccount = ()=>{
+    navigate("/create-account");
+  };
+
+  const handleContinueWithGoogle = () => {
+    const callbackUrl = OAuthConfig.redirectUri;
+    const authUrl = OAuthConfig.authUri;
+    const googleClientId = OAuthConfig.clientId;
+
+    const targetUrl = `${authUrl}?redirect_uri=${encodeURIComponent(
+        callbackUrl
+    )}&response_type=code&client_id=${googleClientId}&scope=openid%20email%20profile`;
+
+    console.log(targetUrl);
+
+    window.location.href = targetUrl;
   };
 
   useEffect(() => {
@@ -93,7 +106,7 @@ export default function Login() {
         >
           <CardContent>
             <Typography variant="h5" component="h1" gutterBottom>
-              Welcome to Devtetia
+              Welcome to Rin
             </Typography>
             <Box
               component="form"
@@ -144,7 +157,7 @@ export default function Login() {
                 variant="contained"
                 color="secondary"
                 size="large"
-                onClick={handleClick}
+                onClick={handleContinueWithGoogle}
                 fullWidth
                 sx={{ gap: "10px" }}
               >
@@ -156,6 +169,7 @@ export default function Login() {
                 variant="contained"
                 color="success"
                 size="large"
+                onClick={handleCreateAccount}
               >
                 Create an account
               </Button>

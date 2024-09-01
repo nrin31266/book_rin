@@ -137,7 +137,6 @@ public class UserService {
     public void deleteUser(String userID) {
         userRepository.deleteById(userID);
     }
-
     public void deleteUserByUserName(String userName) {
         var user = userRepository.findByUsername(userName)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
