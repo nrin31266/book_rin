@@ -77,13 +77,13 @@ public class UserService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
         //Public message to kafka
-        NotificationEvent notificationEvent = NotificationEvent.builder()
-                .channel("EMAIL")
-                .recipient(request.getEmail())
-                .subject("Well come to book rin")
-                .body("Hello " + request.getUsername())
-                .build();
-        kafkaTemplate.send("notification-delivery", notificationEvent);
+//        NotificationEvent notificationEvent = NotificationEvent.builder()
+//                .channel("EMAIL")
+//                .recipient(request.getEmail())
+//                .subject("Well come to book rin")
+//                .body("Hello " + request.getUsername())
+//                .build();
+//        kafkaTemplate.send("notification-delivery", notificationEvent);
         return userMapper.toUserResponse(user);
     }
     private HashSet<Role> getRoles(List<String> requestedRoles) {

@@ -57,4 +57,9 @@ public class UserProfileService {
     public void deleteProfile(String userId) {
         userProfileRepository.deleteByUserId(userId);
     }
+
+    public UserProfileResponse getUserProfileById(String userId) {
+        return userProfileMapper.toUserProfileReponse(userProfileRepository.findByUserId(userId)
+                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_FOUND)));
+    }
 }

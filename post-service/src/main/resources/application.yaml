@@ -8,3 +8,8 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/post-service
+
+app:
+  service:
+    profile:
+      url: http://localhost:8081/profile

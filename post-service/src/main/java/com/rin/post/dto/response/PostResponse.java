@@ -16,6 +16,7 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostResponse {
     String id;
+    String username;
     String content;
     String userId;
     String created;

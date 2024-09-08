@@ -19,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
-        "/internal/users"
+        "/internal/users", "/internal/users/**",
     };
 
     private final CustomJwtDecoder customJwtDecoder;
@@ -34,7 +34,7 @@ public class SecurityConfig {
 
 
         httpSecurity.authorizeHttpRequests(
-                request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                request -> request.requestMatchers(PUBLIC_ENDPOINTS)
                         .permitAll()
                         .anyRequest()
                         .authenticated()
