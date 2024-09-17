@@ -1,8 +1,15 @@
 package com.rin.identity.constant;
 
-public class PredefinedRole {
-    public static final String USER_ROLE = "USER";
-    public static final String ADMIN_ROLE = "ADMIN";
+import lombok.Getter;
 
-    private PredefinedRole() {}
+@Getter
+public enum PredefinedRole {
+    ADMIN("Admin role"),
+    USER("User role");
+
+    private final String description;
+
+    PredefinedRole(String description) {
+        this.description = description;
+    }
 }

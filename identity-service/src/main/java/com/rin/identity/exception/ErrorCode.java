@@ -24,6 +24,8 @@ public enum ErrorCode {
     CANNOT_CREATE_PROFILE(1014, "Can't create profile", HttpStatus.BAD_REQUEST),
     INVALID_INFORMATION(1015, "Invalid information", HttpStatus.BAD_REQUEST),
     PASSWORD_EXISTED(1016, "Password existed", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL(10011, "The email invalid", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(1009, "The email address is already in use", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;

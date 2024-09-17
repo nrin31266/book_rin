@@ -18,6 +18,5 @@ import lombok.experimental.FieldDefaults;
 public class UserUpdateRequest {
     @Size(min = 4, message = "PASSWORD_INVALID")
     String password;
-
     List<String> roles;
 }

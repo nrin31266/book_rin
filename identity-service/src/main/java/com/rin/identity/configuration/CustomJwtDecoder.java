@@ -34,6 +34,5 @@ public class CustomJwtDecoder implements JwtDecoder {
         } catch (ParseException e) {
             throw new JwtException("Invalid token");
         }
-
     }
 }

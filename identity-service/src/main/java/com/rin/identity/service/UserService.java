@@ -2,8 +2,8 @@ package com.rin.identity.service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.rin.event.dto.NotificationEvent;
 import com.rin.identity.dto.request.UserCreationPasswordRequest;
@@ -33,8 +33,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 @RequiredArgsConstructor
@@ -49,53 +47,45 @@ public class UserService {
     ProfileMapper profileMapper;
     KafkaTemplate<String, Object> kafkaTemplate;
     public UserResponse createUser(UserCreationRequest request) {
-
-
         User user = userMapper.toUser(request);
         String userId = UUID.randomUUID().toString();
-        log.info("Service: create user with id {}", userId);
         user.setId(userId);
-
-        var profileRequest = profileMapper.toProfileCreationRequest(request);
-
-        profileRequest.setUserId(userId);
-
-        if(user.getPassword().equals("email")){
-            user.setPassword(null);
-        }else{
+        if(user.getPassword() != null){
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-
-
-        log.info("Role {}", request.getRoles());
-
-        user.setRoles(getRoles(request.getRoles()));
-        profileClient.createProfile(profileRequest);
+        var userRole = request.getRoles().stream()
+                .map(roleId -> roleRepository.findById(roleId)
+                        .orElseThrow(() -> new RuntimeException("Role not found for ID: " + roleId)))
+                .collect(Collectors.toSet());
+        user.setRoles(userRole);
         try {
+            if(userRepository.findByUsername(user.getUsername()).isPresent()){
+                throw new AppException(ErrorCode.USER_EXISTED);
+            }
+            if(userRepository.findByEmail(user.getEmail()).isPresent()){
+                throw new AppException(ErrorCode.EMAIL_EXISTED);
+            }
             user = userRepository.save(user);
         }catch (DataIntegrityViolationException exception){
-            throw new AppException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
-        //Public message to kafka
-//        NotificationEvent notificationEvent = NotificationEvent.builder()
-//                .channel("EMAIL")
-//                .recipient(request.getEmail())
-//                .subject("Well come to book rin")
-//                .body("Hello " + request.getUsername())
-//                .build();
-//        kafkaTemplate.send("notification-delivery", notificationEvent);
+        var profileRequest = profileMapper.toProfileCreationRequest(request);
+        profileRequest.setUserId(userId);
+        profileClient.createProfile(profileRequest);
+
+//        Public message to kafka
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Well come to book rin")
+                .body("Hello " + request.getUsername())
+                .build();
+        kafkaTemplate.send("notification-delivery", notificationEvent);
         return userMapper.toUserResponse(user);
-    }
-    private HashSet<Role> getRoles(List<String> requestedRoles) {
-        if (requestedRoles == null || requestedRoles.isEmpty()) {
-            return null;
-        }
-        List<Role> roles = roleRepository.findAllById(requestedRoles);
-        return new HashSet<>(roles);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    //    @PreAuthorize("hasAuthority('APPROVE_POST')")
+    //    @PreAuthorize("hasAuthority('Permission?')")
     public List<UserResponse> getUsers() {
         log.info("In method get Users");
         List<User> users = userRepository.findAll();

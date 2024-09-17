@@ -64,6 +64,7 @@ export default function Login() {
       console.log("Response body:", response.data);
       navigate("/");
     } catch (error) {
+      console.log(error);
       const errorResponse = error.response.data;
       setSnackBarMessage(errorResponse.message);
       setSnackBarOpen(true);

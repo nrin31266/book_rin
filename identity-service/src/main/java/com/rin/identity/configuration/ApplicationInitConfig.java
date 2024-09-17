@@ -1,24 +1,27 @@
 package com.rin.identity.configuration;
 
-import java.util.HashSet;
 
+import com.rin.identity.constant.PredefinedPermission;
 import com.rin.identity.constant.PredefinedRole;
+import com.rin.identity.entity.Permission;
+import com.rin.identity.entity.Role;
+import com.rin.identity.entity.User;
+import com.rin.identity.repository.PermissionRepository;
+import com.rin.identity.repository.RoleRepository;
+import com.rin.identity.repository.UserRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.rin.identity.entity.User;
-import com.rin.identity.entity.Role;
-import com.rin.identity.repository.RoleRepository;
-import com.rin.identity.repository.UserRepository;
+import java.util.HashSet;
+import java.util.UUID;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @RequiredArgsConstructor
@@ -30,43 +33,68 @@ public class ApplicationInitConfig {
 
     @NonFinal
     static final String ADMIN_USER_NAME = "admin";
-
     @NonFinal
     static final String ADMIN_PASSWORD = "admin";
 
-    @Bean
-    @ConditionalOnProperty(
-            prefix = "spring",
-            value = "datasource.driverClassName",
-            havingValue = "com.mysql.cj.jdbc.Driver")
-    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
-        log.info("Initializing application.....");
-        return args -> {
-            if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
-                roleRepository.save(Role.builder()
-                        .name(PredefinedRole.USER_ROLE)
-                        .description("User role")
-                        .build());
+    private final String[] ADMIN_ROLE = new String[] { "ALL", "VIEW_ALL", "DELETE", "UPDATE"};
+    private final String[] USER_ROLE = new String[] { "CREATE", "DELETE", "UPDATE", "VIEW_MY", "READ"};
 
-                Role adminRole = roleRepository.save(Role.builder()
-                        .name(PredefinedRole.ADMIN_ROLE)
-                        .description("Admin role")
-                        .build());
+
+    @Bean
+    ApplicationRunner init(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository) {
+        return args -> {
+
+
+            // Create admin user if it does not exist
+            if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
+                // Save permissions
+                for (PredefinedPermission predefinedPermission : PredefinedPermission.values()) {
+                    Permission permission = Permission.builder()
+                            .name(predefinedPermission.name())
+                            .description(predefinedPermission.getDescription())
+                            .build();
+                    permissionRepository.save(permission);
+                }
+
+                // Save roles
+                Role adminRole = setPermissionToRole(PredefinedRole.ADMIN.name(), PredefinedRole.ADMIN.getDescription(), ADMIN_ROLE);
+                roleRepository.save(adminRole);
+                Role userRole = setPermissionToRole(PredefinedRole.USER.name(), PredefinedRole.USER.getDescription(), USER_ROLE);
+                roleRepository.save(userRole);
+                // Create admin
 
                 var roles = new HashSet<Role>();
                 roles.add(adminRole);
 
                 User user = User.builder()
+                        .id(UUID.randomUUID().toString())
                         .username(ADMIN_USER_NAME)
-                        .emailVerified(true)
+                        .email(ADMIN_USER_NAME)
                         .password(passwordEncoder.encode(ADMIN_PASSWORD))
                         .roles(roles)
                         .build();
 
                 userRepository.save(user);
-                log.warn("admin user has been created with default password: admin, please change it");
+
+                log.warn("Admin created: {}", user);
             }
-            log.info("Application initialization completed .....");
         };
     }
+    private Role setPermissionToRole(String keyRole, String description, String...keyPermissions){
+        var permission = new HashSet<Permission>();
+
+        for (String keyPermission : keyPermissions) {
+            Permission per = Permission.builder()
+                    .name(keyPermission)
+                    .build();
+            permission.add(per);
+        }
+
+        return Role.builder()
+                .name(keyRole)
+                .description(description)
+                .permissions(permission)
+                .build();
+    }
+
 }
